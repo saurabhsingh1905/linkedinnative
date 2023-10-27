@@ -151,7 +151,8 @@ app.post("/login", async (req, res) => {
         return res.status(404).json({ message: "Invalid credentials" });
       }
   
-      const token = jwt.sign({ userId: user._id }, secretKey);
+      const token = jwt.sign( {userId: user._id} , secretKey);
+      // console.log("aaya na maja",user._id)
   
       res.status(200).json({ token });
     } catch (error) {
@@ -159,3 +160,46 @@ app.post("/login", async (req, res) => {
     }
   });
   
+
+  //ENDPOINT TO FETCH THE USERS PROFILE======================================================================
+  app.get("/profile/:userId",async(req,res)=>{
+    try {
+      const userId = req.params.userId;
+
+      const user = await User.findById(userId)
+      if(!user){
+        return res.status(404).json({message:"User not found"})
+      }
+      //if user exists send me the user 
+      res.status(200).json({user})
+
+    } catch (error) {
+      res.status(500).json({ message: "Error getting the user profile" });
+    }
+  })
+
+  //ENDPOINT TO SHOW ALL THE USER WHICH ARE registered EXCEPT THE LOGEDIN USERID
+  app.get("/users/:userId",async(req,res)=>{ 
+  try {
+    const loggedInUserId = req.params.userId
+
+    //fetch the loggedin user's connection 
+    const loggedInUser = await User.findById(loggedInUserId).populate("connections","_id")
+    if(!loggedInUser){
+      return res.status(400).json({message:"User not found"})
+    }
+
+    //get the ids of all of the connected users 
+    const connectedUserIds=loggedInUser.connections.map((connection)=>connection._id)
+
+    //find the users who are not connected to the loggedin user id so this users will be shown in network tab
+    const users = await User.find({
+      _id:{$ne:loggedInUserId,$nin:connectedUserIds}
+    })
+    
+      res.status(200).json({users})
+  } catch (error) {
+    console.log("Error retriving users",error)
+    res.status(500).json({ message: "Error getting the user profile" });
+  }
+  })

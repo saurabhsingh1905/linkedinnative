@@ -8,7 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -20,16 +20,31 @@ const login = () => {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+//   useEffect(()=> {
+// const checkLoginStatus = async ()=>{
+//   try {
+//     const token = await AsyncStorage.getItem("authToken")
+//     if(token){
+//       router.replace("/(tabs)/home")
+//     }
+//   } catch (error) {
+//     console.log("Error in useEffect",error)
+//   }
+// }
+// checkLoginStatus()
+//    },[])
+
   const handleLogin =()=> {
     const user ={
       email:email,
       password:password
     }
 
-    axios.post("http://192.168.56.136:8001/login",user).then((response)=>{
-      console.log(response);
+    axios.post("http://192.168.230.136:8001/login",user).then((response)=>{
+      // console.log(response);
 
       const token = response.data.token
+      console.log("login se token hu mai",token)
       AsyncStorage.setItem("authToken",token)
       router.replace("/(tabs)/home")
 
