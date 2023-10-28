@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
             ref:"User"
         }
     ],
-    connectionRequest:[
+    connectionRequests:[
         {
             type:mongoose.Schema.Types.ObjectId,
             ref:"User"

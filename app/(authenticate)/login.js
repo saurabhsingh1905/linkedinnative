@@ -20,19 +20,19 @@ const login = () => {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-//   useEffect(()=> {
-// const checkLoginStatus = async ()=>{
-//   try {
-//     const token = await AsyncStorage.getItem("authToken")
-//     if(token){
-//       router.replace("/(tabs)/home")
-//     }
-//   } catch (error) {
-//     console.log("Error in useEffect",error)
-//   }
-// }
-// checkLoginStatus()
-//    },[])
+  useEffect(()=> {
+const checkLoginStatus = async ()=>{
+  try {
+    const token = await AsyncStorage.getItem("authToken")
+    if(token){
+      router.replace("/(tabs)/home")
+    }
+  } catch (error) {
+    console.log("Error in useEffect",error)
+  }
+}
+checkLoginStatus()
+   },[])
 
   const handleLogin =()=> {
     const user ={
@@ -40,11 +40,11 @@ const login = () => {
       password:password
     }
 
-    axios.post("http://192.168.230.136:8001/login",user).then((response)=>{
+    axios.post("http://192.168.59.136:8001/login",user).then((response)=>{
       // console.log(response);
 
       const token = response.data.token
-      console.log("login se token hu mai",token)
+      // console.log("login se token hu mai",token)
       AsyncStorage.setItem("authToken",token)
       router.replace("/(tabs)/home")
 

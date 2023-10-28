@@ -162,44 +162,120 @@ app.post("/login", async (req, res) => {
   
 
   //ENDPOINT TO FETCH THE USERS PROFILE======================================================================
-  app.get("/profile/:userId",async(req,res)=>{
-    try {
-      const userId = req.params.userId;
 
-      const user = await User.findById(userId)
-      if(!user){
-        return res.status(404).json({message:"User not found"})
-      }
-      //if user exists send me the user 
-      res.status(200).json({user})
+app.get("/profile/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
 
-    } catch (error) {
-      res.status(500).json({ message: "Error getting the user profile" });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
     }
-  })
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving user profile" });
+  }
+});
 
   //ENDPOINT TO SHOW ALL THE USER WHICH ARE registered EXCEPT THE LOGEDIN USERID
-  app.get("/users/:userId",async(req,res)=>{ 
-  try {
-    const loggedInUserId = req.params.userId
-
-    //fetch the loggedin user's connection 
-    const loggedInUser = await User.findById(loggedInUserId).populate("connections","_id")
-    if(!loggedInUser){
-      return res.status(400).json({message:"User not found"})
+  app.get("/users/:userId", async (req, res) => {
+    try {
+      const loggedInUserId = req.params.userId;
+  
+      //fetch the logged-in user's connections
+      const loggedInuser = await User.findById(loggedInUserId).populate(
+        "connections",
+        "_id"
+      );
+      if (!loggedInuser) {
+        return res.status(400).json({ message: "User not found" });
+      }
+  
+      //get the ID's of the connected users
+      const connectedUserIds = loggedInuser.connections.map(
+        (connection) => connection._id
+      );
+  
+      //find the users who are not connected to the logged-in user Id
+      const users = await User.find({
+        _id: { $ne: loggedInUserId, $nin: connectedUserIds },
+      });
+  
+      res.status(200).json(users);
+    } catch (error) {
+      console.log("Error retrieving users", error);
+      res.status(500).json({ message: "Error retrieving users" });
     }
+  });
 
-    //get the ids of all of the connected users 
-    const connectedUserIds=loggedInUser.connections.map((connection)=>connection._id)
 
-    //find the users who are not connected to the loggedin user id so this users will be shown in network tab
-    const users = await User.find({
-      _id:{$ne:loggedInUserId,$nin:connectedUserIds}
-    })
-    
-      res.status(200).json({users})
-  } catch (error) {
-    console.log("Error retriving users",error)
-    res.status(500).json({ message: "Error getting the user profile" });
-  }
+  //ENDPOINTS TO CONNECT TO ANY PARTICULAR USER IN THE NETWORK PAGE========================================
+  app.post("/connection-request",async(req,res)=>{
+    try {
+      const {currentUserId,selectedUserId} = req.body;
+      
+      //selecteduser is the one jisko request bhej rahe hai || so we updated in that user connectionrequest
+      await User.findByIdAndUpdate(selectedUserId, {
+        $push: { connectionRequests: currentUserId },
+      });
+
+      //update in currentuser connectionrequest that is to whom connection is being sent
+      await User.findByIdAndUpdate(currentUserId, {
+        $push: { sentConnectionRequests: selectedUserId },
+      });
+
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ message: "Error creating connection request to users" });
+      console.log("Error in sending connection request",error)
+    }
   })
+
+  //ENDPOINT TO ShOW ALL OF THE CONNECTIONS=================================================================
+  app.get("/connection-request/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+  
+      const user = await User.findById(userId)
+        .populate("connectionRequests", "name email profileImage")
+        .lean();
+  
+      const connectionRequests = user.connectionRequests;
+  
+      res.json(connectionRequests);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal Server Error in getting all connections" });
+    }
+  });
+
+
+  //ENDPOINT TO ACCEPT A CONNECTION REQUEST===============================================================
+  app.post("/connection-request/accept", async (req, res) => {
+    try {
+      const { senderId, recepientId } = req.body;
+  
+      const sender = await User.findById(senderId);
+      const recepient = await User.findById(recepientId);
+  
+      sender.connections.push(recepientId);
+      recepient.connections.push(senderId);
+  
+      recepient.connectionRequests = recepient.connectionRequests.filter(
+        (request) => request.toString() !== senderId.toString()
+      );
+  
+      sender.sentConnectionRequests = sender.sentConnectionRequests.filter(
+        (request) => request.toString() !== recepientId.toString()
+      );
+  
+      await sender.save();
+      await recepient.save();
+  
+      res.status(200).json({ message: "Friend request acccepted" });
+    } catch (error) {
+      console.log("Error in accepting the connection request",error);
+      res.status(500).json({ message: "Internal Server Error in acception connection request" });
+    }
+  });

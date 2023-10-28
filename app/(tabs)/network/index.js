@@ -1,53 +1,167 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import jwt_decode from 'jwt-decode'
-// import * as jwt_decode from 'jwt-decode';
-import axios from 'axios'
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import jwt_decode from "jwt-decode";
+import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
+import { Entypo } from "@expo/vector-icons";
+import UserProfile from "../../../components/UserProfile"
 
 const index = () => {
-  const [userId,setUserId] = useState("")
-  const [user,setUser] = useState()
+  const [userId, setUserId] = useState("");
+  const [user, setUser] = useState();
+  //below state for holding connections
+  const [users, setUsers] = useState([]);
 
-  useEffect(()=>{
-const fetchUser = async ()=> {
-  const token = await AsyncStorage.getItem("authToken")
-  console.log("token hu mai ",token) 
-  
-   const decodedToken = jwt_decode(token)
-  //  const decodedToken = jwt_decode({token})
-  console.log("shivi")
-  const userId = decodedToken.userId;
-  // setUserId(userId)
-}
-fetchUser()
-},[])
-console.log("usetId hu mai network setUser",userId)
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = await AsyncStorage.getItem("authToken");
+      // console.log("token hu mai ",token)
 
-useEffect(()=>{
-if(userId){
-  fetchUserProfile()
-}
-},[userId])
+      const decodedToken = jwt_decode(token);
 
-const fetchUserProfile =async()=>{
-  try {
-    const response = await axios.get(`http://192.168.230.136/profile/${userId}`)
-    const userData = response.data.user
-    setUser(userData)
-  } catch (error) {
-    console.log("Error fetching user profile",error)
-  }
-}
-// console.log(user)
+      const userId = decodedToken.userId;
+      setUserId(userId);
+    };
+    fetchUser();
+  }, []);
+  // console.log("usetId hu mai network se User",userId)
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserProfile();
+    }
+  }, [userId]);
+  //fetching the details of myProfile
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.59.136:8001/profile/${userId}`
+      );
+      const userData = response.data.user;
+      setUser(userData);
+    } catch (error) {
+      console.log("Error fetching user profile", error);
+    }
+  };
+  // console.log(user)
+
+  //UseEffect to fetch all of the connections
+  useEffect(() => {
+    if (userId) {
+      fetchUsers();
+    }
+  }, [userId]);
+
+  const fetchUsers = async () => {
+    axios
+      .get(`http://192.168.59.136:8001/users/${userId}`)
+      .then((response) => {
+        setUsers(response.data);
+      })
+      .catch((error) => {
+        console.log("error while fetching connections", error);
+      });
+  };
+
+   console.log("logs of connection ", users);
 
   return (
-    <View>
-      <Text>index</Text>
-    </View>
-  )
-}
+    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+      <Pressable
+        style={{
+          marginTop: 18,
+          flexDirection: "row",
+          marginHorizontal: 10,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text style={{ fontSize: 16, fontWeight: "600" }}>
+          Manage My Network
+        </Text>
+        <AntDesign name="arrowright" size={22} color="black" />
+      </Pressable>
 
-export default index
+      <View
+        style={{ borderColor: "#E0E0E0", borderWidth: 2, marginVertical: 10 }}
+      />
 
-const styles = StyleSheet.create({})
+      <View
+        style={{
+          marginTop: 6,
+          flexDirection: "row",
+          marginHorizontal: 10,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text style={{ fontSize: 16, fontWeight: "600" }}>
+          Invitations (0){" "}
+        </Text>
+        <AntDesign name="arrowright" size={22} color="black" />
+      </View>
+      <View
+        style={{ borderColor: "#E0E0E0", borderWidth: 2, marginVertical: 10 }}
+      />
+
+      <View>{/* show all of the request connections */}</View>
+
+      <View style={{ marginHorizontal: 15 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text>Grow your network faster</Text>
+          <Entypo name="cross" size={24} color="black" />
+        </View>
+
+        <Text>
+          Find and connect to the right people, Plus see who viewed your profile
+        </Text>
+
+        <View
+          style={{
+            backgroundColor: "#FFC72C",
+            width: 140,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 25,
+            marginTop: 8,
+          }}
+        >
+          <Text
+            style={{ textAlign: "center", color: "white", fontWeight: "600" }}
+          >
+            Try Premium
+          </Text>
+        </View>
+      </View>
+
+      <FlatList
+        data={users}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
+        numColumns={2}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item, key }) => (
+          <UserProfile userId={userId} item={item} key={index} />
+        )}
+      />
+    </ScrollView>
+  );
+};
+
+export default index;
+
+const styles = StyleSheet.create({});
