@@ -6,9 +6,33 @@ import {
   Dimensions,
   Pressable,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 
 const UserProfile = ({ item, userId }) => {
+  const [connectionSent, setConnectionSent] = useState(false);
+
+  // console.log(userId)
+  const sendConnectionRequest = async (currentUserId, selectedUserId) => {
+    try {
+      const response = await fetch(
+        "http://192.168.59.136:8001/connection-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ currentUserId, selectedUserId }),
+        }
+      );
+
+      if (response.ok) {
+        setConnectionSent(true);
+      }
+    } catch (error) {
+      console.log("Error in sendConnectionRequest function", error);
+    }
+  };
+
   return (
     <View
       style={{
@@ -45,10 +69,15 @@ const UserProfile = ({ item, userId }) => {
       </View>
 
       <Pressable
+        onPress={() => sendConnectionRequest(userId, item._id)}
         style={{
           marginLeft: "auto",
           marginRight: "auto",
-          borderColor: "#0072B1",
+          // borderColor: "#0072B1",
+          borderColor:
+            connectionSent || item?.connectionRequests?.includes(userId)
+              ? "gray"
+              : "#0072B1",
           borderWidth: 1,
           borderRadius: 25,
           paddingHorizontal: 15,
@@ -56,7 +85,19 @@ const UserProfile = ({ item, userId }) => {
           paddingVertical: 4,
         }}
       >
-        <Text style={{fontWeight:"600",color:"#0072B1"}}>Connect</Text>
+        <Text
+          style={{
+            fontWeight: "600",
+            color:
+              connectionSent || item?.connectionRequests?.includes(userId)
+                ? "gray"
+                : "#0072B1",
+          }}
+        >
+          {connectionSent || item?.connectionRequests?.includes(userId)
+            ? "Pending"
+            : "Connect"}
+        </Text>
       </Pressable>
     </View>
   );

@@ -12,13 +12,16 @@ import jwt_decode from "jwt-decode";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
 import { Entypo } from "@expo/vector-icons";
-import UserProfile from "../../../components/UserProfile"
+import UserProfile from "../../../components/UserProfile";
+import ConnectionRequest from "../../../components/ConnectionRequest";
 
 const index = () => {
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState();
   //below state for holding connections
   const [users, setUsers] = useState([]);
+  //below state is for holding connection request
+  const [connectionRequests, setConnectionRequests] = useState([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -71,8 +74,33 @@ const index = () => {
         console.log("error while fetching connections", error);
       });
   };
+  //  console.log("logs of connection ", users);
 
-   console.log("logs of connection ", users);
+  useEffect(() => {
+    if (userId) {
+      fetchFriendRequests();
+    }
+  }, [userId]);
+
+  const fetchFriendRequests = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.59.136:8001/connection-request/${userId}`
+      );
+      if (response.status === 200) {
+        const connectionRequestData = response.data?.map((friendRequest) => ({
+          _id: friendRequest._id,
+          name: friendRequest.name,
+          email: friendRequest.email,
+          profileImage: friendRequest.image,
+        }));
+        setConnectionRequests(connectionRequestData);
+      }
+    } catch (error) {
+      console.log("Error in getting all the friends", error);
+    }
+  };
+  console.log("coonection request from here", connectionRequests);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
@@ -104,16 +132,24 @@ const index = () => {
           justifyContent: "space-between",
         }}
       >
-        <Text style={{ fontSize: 16, fontWeight: "600" }}>
-          Invitations (0){" "}
-        </Text>
+        <Text style={{ fontSize: 16, fontWeight: "600" }}>Invitations (0)</Text>
         <AntDesign name="arrowright" size={22} color="black" />
       </View>
       <View
         style={{ borderColor: "#E0E0E0", borderWidth: 2, marginVertical: 10 }}
       />
 
-      <View>{/* show all of the request connections */}</View>
+      <View>
+        {connectionRequests?.map((item, index) => (
+          <ConnectionRequest
+            item={item}
+            key={index}
+            connectionRequests={connectionRequests}
+            setConnectionRequests={setConnectionRequests}
+            userId={userId}
+          />
+        ))}
+      </View>
 
       <View style={{ marginHorizontal: 15 }}>
         <View
