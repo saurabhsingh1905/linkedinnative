@@ -32,7 +32,7 @@ const register = () => {
       password:password,
       profileImage:image
     }
-    axios.post("http://192.168.59.136:8001/register",user).then((response)=>{
+    axios.post("http://192.168.165.136:8001/register",user).then((response)=>{
       // console.log(response)
       Alert.alert("Registration successful","You have ben registerd successfully")
       setName("")

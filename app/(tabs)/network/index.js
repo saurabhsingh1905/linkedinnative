@@ -14,8 +14,11 @@ import axios from "axios";
 import { Entypo } from "@expo/vector-icons";
 import UserProfile from "../../../components/UserProfile";
 import ConnectionRequest from "../../../components/ConnectionRequest";
+import { useRouter } from "expo-router";
 
 const index = () => {
+  const router = useRouter()
+
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState();
   //below state for holding connections
@@ -47,7 +50,7 @@ const index = () => {
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.59.136:8001/profile/${userId}`
+        `http://192.168.165.136:8001/profile/${userId}`
       );
       const userData = response.data.user;
       setUser(userData);
@@ -66,7 +69,7 @@ const index = () => {
 
   const fetchUsers = async () => {
     axios
-      .get(`http://192.168.59.136:8001/users/${userId}`)
+      .get(`http://192.168.165.136:8001/users/${userId}`)
       .then((response) => {
         setUsers(response.data);
       })
@@ -85,26 +88,28 @@ const index = () => {
   const fetchFriendRequests = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.59.136:8001/connection-request/${userId}`
+        `http://192.168.165.136:8001/connection-request/${userId}`
       );
       if (response.status === 200) {
-        const connectionRequestData = response.data?.map((friendRequest) => ({
+        const connectionRequestsData = response.data?.map((friendRequest) => ({
           _id: friendRequest._id,
           name: friendRequest.name,
           email: friendRequest.email,
-          profileImage: friendRequest.image,
+          image: friendRequest.profileImage,
         }));
-        setConnectionRequests(connectionRequestData);
+
+        setConnectionRequests(connectionRequestsData);
       }
     } catch (error) {
-      console.log("Error in getting all the friends", error);
+      console.log("error", error);
     }
   };
-  console.log("coonection request from here", connectionRequests);
+  // console.log("coonection request from here", connectionRequests);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
       <Pressable
+      onPress={()=>router.push('/network/connections') }
         style={{
           marginTop: 18,
           flexDirection: "row",
