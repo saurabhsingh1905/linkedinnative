@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
-import { firebase } from "../../../firebase";
+// import { firebase } from "../../../firebase";
 import axios from "axios";
 import { useRouter } from "expo-router";
 
@@ -53,7 +53,8 @@ const index = () => {
 
   const createPost = async () => {
     try {
-      const uploadedUrl = await uploadFile();
+      // const uploadedUrl = await uploadFile();
+      const uploadedUrl = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*";
 
       const postData = {
         description: description,
@@ -62,58 +63,58 @@ const index = () => {
       };
 
       const response = await axios.post(
-        "http://192.168.165.136:8001/create",
+        "http://192.168.52.136:8001/create",
         postData
       );
 
       console.log("post created successfully from post| index.js", response.data);
       
       if (response.status === 201) {
-        router.replace("/(tabs)/home");
+        router.push("/(tabs)/home");
       }
     } catch (error) {
       console.log("error creating post", error);
     }
   };
 
-  const uploadFile = async () => {
-    try {
-      // Ensure that 'image' contains a valid file URI
-      console.log("Image URI:", image);
+  // const uploadFile = async () => {
+  //   try {
+  //     // Ensure that 'image' contains a valid file URI
+  //     console.log("Image URI:", image);
 
-      const { uri } = await FileSystem.getInfoAsync(image);
+  //     const { uri } = await FileSystem.getInfoAsync(image);
 
-      if (!uri) {
-        throw new Error("Invalid file URI");
-      }
+  //     if (!uri) {
+  //       throw new Error("Invalid file URI");
+  //     }
 
-      const blob = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = () => {
-          resolve(xhr.response);
-        };
-        xhr.onerror = (e) => {
-          reject(new TypeError("Network request failed"));
-        };
-        xhr.responseType = "blob";
-        xhr.open("GET", uri, true);
-        xhr.send(null);
-      });
+  //     const blob = await new Promise((resolve, reject) => {
+  //       const xhr = new XMLHttpRequest();
+  //       xhr.onload = () => {
+  //         resolve(xhr.response);
+  //       };
+  //       xhr.onerror = (e) => {
+  //         reject(new TypeError("Network request failed"));
+  //       };
+  //       xhr.responseType = "blob";
+  //       xhr.open("GET", uri, true);
+  //       xhr.send(null);
+  //     });
 
-      const filename = image.substring(image.lastIndexOf("/") + 1);
+  //     const filename = image.substring(image.lastIndexOf("/") + 1);
 
-      const ref = firebase.storage().ref().child(filename);
-      await ref.put(blob);
+  //     const ref = firebase.storage().ref().child(filename);
+  //     await ref.put(blob);
 
-      const downloadURL = await ref.getDownloadURL();
-      // setUrl(downloadURL);
-      return downloadURL;
-      // Alert.alert("Photo uploaded");
-    } catch (error) {
-      console.log("Error:", error);
-      // Handle the error or display a user-friendly message
-    }
-  };
+  //     const downloadURL = await ref.getDownloadURL();
+  //     // setUrl(downloadURL);
+  //     return downloadURL;
+  //     // Alert.alert("Photo uploaded");
+  //   } catch (error) {
+  //     console.log("Error:", error);
+  //     // Handle the error or display a user-friendly message
+  //   }
+  // };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>

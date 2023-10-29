@@ -40,7 +40,7 @@ checkLoginStatus()
       password:password
     }
 
-    axios.post("http://192.168.165.136:8001/login",user).then((response)=>{
+    axios.post("http://192.168.52.136:8001/login",user).then((response)=>{
       // console.log(response);
 
       const token = response.data.token

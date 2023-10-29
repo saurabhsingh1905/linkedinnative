@@ -354,13 +354,13 @@ app.post("/create",async(req,res)=>{
 })
 
 //ENDPOINT TO FETCH ALL OF THE POST =====================================================================
-app.post("/all",async(req,res)=>{ 
-try {
-  const posts = await Post.find().populate("user","name,profileImage,createdAt")
-  res.status(200).json({posts})
+app.get("/all", async (req, res) => {
+  try {
+    const posts = await Post.find().populate("user", "name profileImage");
 
-} catch (error) {
-  console.log("Error fetching all the post",error)
-  res.status(500).json({ message: "Error while fetching all the post for homepage " });
-}
-})
+    res.status(200).json({ posts });
+  } catch (error) {
+    console.log("error fetching all the posts", error);
+    res.status(500).json({ message: "Error fetching all the posts" });
+  }
+});
