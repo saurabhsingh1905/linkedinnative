@@ -22,6 +22,7 @@ const index = () => {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
   const [userId, setUserId] = useState("");
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,14 +64,14 @@ const index = () => {
       };
 
       const response = await axios.post(
-        "http://192.168.52.136:8001/create",
+        "http://192.168.53.136:8001/create",
         postData
       );
 
       console.log("post created successfully from post| index.js", response.data);
       
       if (response.status === 201) {
-        router.push("/(tabs)/home");
+        router.replace("/(tabs)/home");
       }
     } catch (error) {
       console.log("error creating post", error);

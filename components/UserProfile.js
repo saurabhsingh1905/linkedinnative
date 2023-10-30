@@ -15,7 +15,7 @@ const UserProfile = ({ item, userId }) => {
   const sendConnectionRequest = async (currentUserId, selectedUserId) => {
     try {
       const response = await fetch(
-        "http://192.168.52.136:8001/connection-request",
+        "http://192.168.53.136:8001/connection-request",
         {
           method: "POST",
           headers: {

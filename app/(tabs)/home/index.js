@@ -20,7 +20,8 @@ const index = () => {
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState("");
   const [posts, setPosts] = useState([]);
-
+  const [showfullText,setshowfullText] = useState(false)
+  
   useEffect(() => {
     const fetchUser = async () => {
       const token = await AsyncStorage.getItem("authToken");
@@ -45,7 +46,7 @@ const index = () => {
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.52.136:8001/profile/${userId}`
+        `http://192.168.53.136:8001/profile/${userId}`
       );
       const userData = response.data.user;
       setUser(userData);
@@ -58,7 +59,7 @@ const index = () => {
   useEffect(() => {
     const fetchAllPost = async () => {
       try {
-        const response = await axios.get("http://192.168.52.136:8001/all");
+        const response = await axios.get("http://192.168.53.136:8001/all");
         setPosts(response.data.posts);
       } catch (error) {
         console.log("Error fetching all post im home index.js", error);
@@ -67,6 +68,13 @@ const index = () => {
     fetchAllPost();
   }, []);
   // console.log("you can see all the post here from home index",posts)
+
+const MAX_LINES = 2;
+
+const toggleShowFullText= ()=>{
+  setshowfullText(!showfullText)
+}
+
 
   return (
     <ScrollView>
@@ -151,6 +159,121 @@ const index = () => {
 
                 <Feather name="x" size={20} color="black" />
               </View>
+            </View>
+
+            <View
+              style={{ marginTop: 10, marginHorizontal: 10, marginBottom: 12 }}
+            >
+              <Text
+                style={{ fontSize: 15 }}
+              numberOfLines={showfullText?undefined: MAX_LINES}
+              >
+                {item?.description}
+              </Text>
+              {!showfullText && (
+                <Pressable onPress={toggleShowFullText}>
+                  <Text>See more</Text>
+                </Pressable>
+              )}
+              </View>
+
+              <Image
+              style={{ width: "100%", height: 240 }}
+              source={{ uri: item?.imageUrl }}
+            />
+
+
+{/* {item?.likes?.length > 0 && (
+              <View
+                style={{
+                  padding: 10,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <SimpleLineIcons name="like" size={16} color="#0072b1" />
+                <Text style={{ color: "gray" }}>{item?.likes?.length}</Text>
+              </View>
+            )} */}
+
+<View
+              style={{
+                height: 2,
+                borderColor: "#E0E0E0",
+                borderWidth: 2,
+                marginTop:15
+              }}
+            />
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+                marginVertical: 10,
+              }}
+            >
+              <Pressable onPress={() => handleLikePost(item?._id)} >
+                <AntDesign
+                  style={{ textAlign: "center" }}
+                  name="like2"
+                  size={24}
+                  // color={isLiked? "#0072b1" : "gray"}
+                />
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: 12,
+                    // color: isLiked? "#0072b1" : "gray",
+                    marginTop: 2,
+                  }}
+                >
+                  Like
+                </Text>
+              </Pressable>
+              <Pressable>
+                <FontAwesome
+                  name="comment-o"
+                  size={20}
+                  color="gray"
+                  style={{ textAlign: "center" }}
+                />
+                <Text
+                  style={{
+                    textAlign: "center",
+                    marginTop: 2,
+                    fontSize: 12,
+                    color: "gray",
+                  }}
+                >
+                  Comment
+                </Text>
+              </Pressable>
+              <Pressable>
+                <Ionicons
+                  name="md-share-outline"
+                  size={20}
+                  color="gray"
+                  style={{ textAlign: "center" }}
+                />
+                <Text
+                  style={{
+                    marginTop: 2,
+                    fontSize: 12,
+                    textAlign: "center",
+                    color: "gray",
+                  }}
+                >
+                  repost
+                </Text>
+              </Pressable>
+              <Pressable>
+                <Feather name="send" size={20} color="gray" />
+                <Text style={{ marginTop: 2, fontSize: 12, color: "gray" }}>
+                  Send
+                </Text>
+              </Pressable>
             </View>
           </View>
         ))}

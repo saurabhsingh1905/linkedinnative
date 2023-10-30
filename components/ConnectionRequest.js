@@ -11,7 +11,7 @@ const ConnectionRequest = ({
 
 const acceptConnection = async(requestId)=>{
 try {
-  const response = await fetch("http://192.168.52.136:8001/connection-request/accept",{
+  const response = await fetch("http://192.168.53.136:8001/connection-request/accept",{
     method:"POST",
     headers:{
       "Content-Type":"application/json"
@@ -34,7 +34,7 @@ try {
 
 const declineConnection = async(requestId)=>{
   try {
-    const response = await fetch("http://192.168.52.136:8001/connection-request/decline",{
+    const response = await fetch("http://192.168.53.136:8001/connection-request/decline",{
       method:"POST",
       headers:{
         "Content-Type":"application/json"

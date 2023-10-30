@@ -35,7 +35,7 @@ if(userId){
 
 const fetchConnections = async ()=>{
   try {
-    const response = await axios.get(`http://192.168.52.136:8001/connections/${userId}`)
+    const response = await axios.get(`http://192.168.53.136:8001/connections/${userId}`)
     setConnections(response.data.connections)
 
   } catch (error) {
